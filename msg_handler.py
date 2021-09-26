@@ -37,7 +37,7 @@ class DSTHandler:
 
     def __call__(self, parser: DataParser) -> str:
         who, is_admin = parser.nickname, parser.is_admin
-        cmd, param = re.search(r'^/%s\s+(\S+)\s*(.*)' % self._name, parser.msg, re.S).groups()
+        cmd, param = re.search(r'^/%s\s*(\S+)\s*(.*)' % self._name, parser.msg, re.S).groups()
         log.info(f'recv dst_server control: cmd={cmd}, param={param}, '
                  f'who={who}, is_admin={is_admin}, msg={parser.msg}')
 

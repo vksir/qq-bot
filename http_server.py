@@ -34,8 +34,8 @@ class Application:
             pass
 
     def send_msg(self, user_id: int, msg: str, group_id: int = None):
+        url = f'{self._qq_bot_url}/send_msg'
         if group_id:
-            url = f'{self._qq_bot_url}/send_group_msg'
             msg = f'[CQ:at,qq={user_id}]{msg}'
             params = dict(group_id=group_id, message=msg)
         else:
