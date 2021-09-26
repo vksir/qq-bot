@@ -1,0 +1,16 @@
+{
+    ".or": [
+        {
+            "message_type": "private"
+        },
+        {
+            "message_type": "group",
+            "raw_message": {
+                ".regex": "CQ:at,qq=2155823349"
+            },
+            "anonymous": {
+                ".eq": null
+            }
+        }
+    ]
+}
