@@ -25,16 +25,21 @@ class DataParser:
         sender = data.get('sender', {})
         self.nickname = sender.get('card') or sender.get('nickname') or self.user_id
         role = sender.get('role')
-        self.is_admin = self.message_type == 'private' or role in ['owner', 'admin ']
+        self.is_admin = self.message_type == 'private' or role in ['owner', 'admin']
 
         # only group msg
         self.group_id: int = data.get('group_id')
 
     def _get_msg(self, data: dict) -> str:
-        """remove @QQ_BOT in msg"""
-
+        """deal with msg from qq"""
         msg: str = data.get('message')
+
+        # remove @QQ_BOT in msg
         msg = msg.replace(f'[CQ:at,qq={self.self_id}]', '').strip()
+
+        # deal with [, ]
+        msg = msg.replace('&#91;', '[')
+        msg = msg.replace('&#93;', ']')
         return msg
 
 
@@ -55,9 +60,6 @@ class CfgParser:
 
     def _init_cfg(self):
         cfg = {
-            'qq_bot': {
-                'id': ''
-            },
             'turing': {
                 'user_id': '',
                 'api_key': ''

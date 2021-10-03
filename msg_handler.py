@@ -15,18 +15,18 @@ class MsgHandler:
 
     def __call__(self, parser: DataParser) -> str:
         msg = parser.msg
-        if not msg.startswith('/'):
+        if not msg.startswith('#'):
             user_id = self._cfg.get('turing', {}).get('user_id')
             api_key = self._cfg.get('turing', {}).get('api_key')
             turing_handler = TuringHandler(user_id, api_key)
             return turing_handler(parser)
 
         for name, ip in self._dst_server_dict.items():
-            if re.search(r'^/%s' % name, msg):
+            if re.search(r'^#\s*%s' % name, msg):
                 dst_handler = DSTHandler(name, ip)
                 return dst_handler(parser)
-        else:
-            return 'Invalid command.'
+
+        return 'Invalid command.'
 
 
 class DSTHandler:
@@ -37,7 +37,7 @@ class DSTHandler:
 
     def __call__(self, parser: DataParser) -> str:
         who, is_admin = parser.nickname, parser.is_admin
-        cmd, param = re.search(r'^/%s\s*(\S+)\s*(.*)' % self._name, parser.msg, re.S).groups()
+        cmd, param = re.search(r'^#\s*%s\s*(\S+)\s*(.*)' % self._name, parser.msg, re.S).groups()
         log.info(f'recv dst_server control: cmd={cmd}, param={param}, '
                  f'who={who}, is_admin={is_admin}, msg={parser.msg}')
 
@@ -45,7 +45,7 @@ class DSTHandler:
             return 'Permission denied.'
 
         method = 'ctr_' + cmd.replace('-', '_')
-        if cmd in ['start', 'stop', 'restart', 'update', 'mod-list', 'player-list']:
+        if cmd in ['start', 'stop', 'restart', 'update', 'mod-list', 'player-list', 'create-cluster']:
             method = 'ctr_action'
 
         if hasattr(self, method):
@@ -57,7 +57,7 @@ class DSTHandler:
 
             return self._get_response_msg(cmd, data)
         else:
-            return 'Invalid command.'
+            return 'Method not found.'
 
     def _get_response_msg(self, cmd: str, data: dict) -> str:
         resp_msg = f'{self._name}: {cmd} success.\n'

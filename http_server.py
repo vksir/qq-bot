@@ -3,6 +3,7 @@ import requests
 from webob import Request, Response
 from wsgiref.simple_server import make_server
 
+
 from log import log
 from config import DataParser
 from msg_handler import MsgHandler
