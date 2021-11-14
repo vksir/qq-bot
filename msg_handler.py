@@ -48,19 +48,17 @@ class DSTHandler:
         if cmd in ['start', 'stop', 'restart', 'update', 'mod-list', 'player-list', 'create-cluster']:
             method = 'ctr_action'
 
-        if hasattr(self, method):
-            data = getattr(self, method)(cmd, param, who)
-            if data.get('ret'):
-                info = data.get('info')
-                info = f': {info}' if info else ''
-                return f'{self._name} {cmd} failed{info}.'
-
-            return self._get_response_msg(cmd, data)
-        else:
+        if not hasattr(self, method):
             return 'Method not found.'
+        data = getattr(self, method)(cmd, param, who)
+        return self._get_response_msg(cmd, data)
 
     def _get_response_msg(self, cmd: str, data: dict) -> str:
-        resp_msg = f'{self._name}: {cmd} success.\n'
+        info = data.get('info')
+        info = f': {info}' if info else ''
+        if data.get('ret'):
+            return f'{self._name} {cmd} failed{info}.'
+        resp_msg = f'{self._name}: {cmd} success{info}.\n'
 
         player_lst = data.get('player_list')
         if player_lst is not None:
@@ -119,7 +117,7 @@ class DSTHandler:
             resp = requests.post(url, data=json.dumps(data))
         except requests.ConnectionError as e:
             log.error(f'post failed: error={e}')
-            return self.response(1, info='connect refused')
+            return self._response(1, info='connect refused')
 
         try:
             resp_data = json.loads(resp.text)
@@ -127,13 +125,13 @@ class DSTHandler:
             return resp_data
         except json.JSONDecodeError as e:
             log.error(f'json decode failed: resp_text={resp.text}, error={e}')
-            return self.response(1, info=resp.text)
+            return self._response(1, info=resp.text)
 
     @staticmethod
-    def response(ret: int,
-                 info: str = None,
-                 player_list: list = None,
-                 mod_list: list = None) -> dict:
+    def _response(ret: int,
+                  info: str = None,
+                  player_list: list = None,
+                  mod_list: list = None) -> dict:
         return locals()
 
 
