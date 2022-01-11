@@ -79,6 +79,9 @@ class CfgParser:
 
 
 def init_path():
-    for dirname in dir(constants):
-        if dirname.endswith('DIR') and not os.path.exists(eval(dirname)):
-            run_cmd(f'mkdir -p {eval(dirname)}')
+    for path_name in dir(constants):
+        path = getattr(constants, path_name)
+        if (not path_name.endswith('HOME') and not path_name.endswith('DIR')) \
+                or os.path.exists(path):
+            continue
+        run_cmd(f'mkdir -p {path}')
